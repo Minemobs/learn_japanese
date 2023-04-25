@@ -62,7 +62,6 @@ fn main() {
         ('む', "mu"),
         ('ゆ', "yu"),
         ('る', "ru"),
-        
         //E
         ('え', "e"),
         //O
@@ -70,12 +69,12 @@ fn main() {
     ];
     hiraganas.shuffle(&mut rng);
     // let vowel_choosed = ['a', 'e', 'i', 'u', 'o'].choose(&mut rng).unwrap();
-    let _vowel_choosed = &'i';
+    let _vowel_choosed = ['a', 'i'];
 
     let hiraganas: Vec<Hiragana> = hiraganas
         .map(|it| Hiragana::from(it))
         .into_iter()
-        // .filter(|it| it.vowel == *vowel_choosed || it.vowel.to_string() == it.romanized)
+        .filter(|it| _vowel_choosed.contains(&it.vowel) || it.vowel.to_string() == it.romanized)
         .collect();
     let len = hiraganas.len();
 
