@@ -81,7 +81,7 @@ fn main() {
         ('も', "mo"),
         ('よ', "yo"),
         ('ろ', "ro"),
-        ('を', "wo")
+        ('を', "wo"),
     ];
     hiraganas.shuffle(&mut rng);
     // let vowel_choosed = ['a', 'e', 'i', 'u', 'o'].choose(&mut rng).unwrap();
@@ -103,7 +103,7 @@ fn main() {
             println!("Nice");
             points += 1;
         } else {
-            println!("You dumbass it's '{}' !", hiragana.romanized);
+            println!("You already forgot ? It's '{}' !", hiragana.romanized);
         }
     }
     println!("You have {}/{} points.", points, len);
