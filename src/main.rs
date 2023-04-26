@@ -1,5 +1,5 @@
 use rand::seq::SliceRandom;
-use rand::thread_rng;
+use rand::{thread_rng, Rng};
 use std::io;
 
 struct Hiragana {
@@ -87,12 +87,13 @@ fn main() {
     // let vowel_choosed = ['a', 'e', 'i', 'u', 'o'].choose(&mut rng).unwrap();
     let _vowel_choosed = ['a', 'i'];
 
-    let hiraganas: Vec<Hiragana> = hiraganas
+    let mut hiraganas: Vec<Hiragana> = hiraganas
         .map(|it| Hiragana::from(it))
         .into_iter()
         .filter(|it| _vowel_choosed.contains(&it.vowel) || it.vowel.to_string() == it.romanized)
         .collect();
-    let len = hiraganas.len();
+    let len = rng.gen_range(0..hiraganas.len());
+    hiraganas.truncate(len);
 
     for hiragana in hiraganas {
         let mut line = String::new();
