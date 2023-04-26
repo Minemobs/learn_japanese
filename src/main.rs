@@ -1,6 +1,10 @@
+extern crate directories;
+
+use directories::BaseDirs;
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
-use std::io;
+use std::fs::{read_to_string, write};
+use std::io::stdin;
 
 struct Hiragana {
     japanese: char,
@@ -24,6 +28,51 @@ impl Hiragana {
     fn from(tuple: (char, &'static str)) -> Self {
         Hiragana::new(tuple.0, tuple.1)
     }
+}
+
+fn config_check() -> Result<Vec<char>, std::io::Error> {
+    const DEFAULT_VOWELS: [char; 5] = ['a', 'e', 'i', 'u', 'o'];
+    let path = BaseDirs::new()
+        .unwrap()
+        .config_dir()
+        .join("learn-japanese.conf");
+    println!("Config path : {}", path.as_path().to_str().unwrap());
+    let file = if path.exists() {
+        std::fs::File::open(&path)
+    } else {
+        let f = std::fs::File::create(&path);
+        if let Err(e) = write(
+            &path,
+            format!("vowels:{}", String::from_iter(DEFAULT_VOWELS)),
+        ) {
+            eprintln!(
+                "An error occured while writing the default config\n{:#?}",
+                e
+            );
+            return Err(e);
+        }
+        f
+    };
+    if file.is_err() {
+        return Err(file.err().unwrap());
+    }
+    let config = read_to_string(&path);
+    if config.is_err() {
+        eprintln!(
+            "An error occured while reading the config\n{:#?}",
+            config.as_ref().err().unwrap()
+        );
+        return Err(config.err().unwrap());
+    }
+    //TODO: ask if user want to change config
+    Ok(config
+        .ok()
+        .unwrap()
+        .lines()
+        .filter(|it| it.starts_with("vowels:"))
+        .map(|it| it.split(":").last().unwrap())
+        .flat_map(|it| it.chars())
+        .collect())
 }
 
 fn main() {
@@ -85,7 +134,12 @@ fn main() {
     ];
     hiraganas.shuffle(&mut rng);
     // let vowel_choosed = ['a', 'e', 'i', 'u', 'o'].choose(&mut rng).unwrap();
-    let _vowel_choosed = ['a', 'i'];
+    // let _vowel_choosed = ['a', 'i'];
+
+    let _vowel_choosed = match config_check() {
+        Ok(vowels) => vowels,
+        Err(_) => vec!['a', 'e', 'i', 'u', 'o'],
+    };
 
     let mut hiraganas: Vec<Hiragana> = hiraganas
         .map(|it| Hiragana::from(it))
@@ -98,7 +152,7 @@ fn main() {
     for hiragana in hiraganas {
         let mut line = String::new();
         println!("What's that character: {} ?", hiragana.japanese);
-        io::stdin().read_line(&mut line).unwrap();
+        stdin().read_line(&mut line).unwrap();
         line = line.trim_end().to_string();
         if line.eq_ignore_ascii_case(hiragana.romanized) {
             println!("Nice");

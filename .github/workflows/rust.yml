@@ -22,7 +22,7 @@ jobs:
       run: cargo build --verbose --release
     - uses: actions/upload-artifact@v3
       with:
-        name: Publish
+        name: Publish - ${{ matrix.os }}
         path: |
           !target/release/learn_japanese.d
           target/release/learn_japanese*
