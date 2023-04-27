@@ -5,6 +5,7 @@ use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 use std::fs::{read_to_string, write};
 use std::io::stdin;
+use std::process::Command;
 
 struct Hiragana {
     japanese: char,
@@ -30,13 +31,8 @@ impl Hiragana {
     }
 }
 
-fn config_check() -> Result<Vec<char>, std::io::Error> {
+fn create_config(path: &std::path::Path) -> Result<(), std::io::Error> {
     const DEFAULT_VOWELS: [char; 5] = ['a', 'e', 'i', 'u', 'o'];
-    let path = BaseDirs::new()
-        .unwrap()
-        .config_dir()
-        .join("learn-japanese.conf");
-    println!("Config path : {}", path.as_path().to_str().unwrap());
     let file = if path.exists() {
         std::fs::File::open(&path)
     } else {
@@ -53,18 +49,60 @@ fn config_check() -> Result<Vec<char>, std::io::Error> {
         }
         f
     };
-    if file.is_err() {
-        return Err(file.err().unwrap());
+    file.map(|_| Ok(())).unwrap()
+}
+
+fn read_config(path: &std::path::Path) -> Result<String, std::io::Error> {
+    match read_to_string(&path) {
+        Ok(str) => Ok(str),
+        Err(e) => {
+            eprintln!("An error occured while reading the config\n{:#?}", e);
+            Err(e)
+        }
     }
-    let config = read_to_string(&path);
-    if config.is_err() {
-        eprintln!(
-            "An error occured while reading the config\n{:#?}",
-            config.as_ref().err().unwrap()
-        );
-        return Err(config.err().unwrap());
+}
+
+fn config_check() -> Result<Vec<char>, std::io::Error> {
+    let path = BaseDirs::new()
+        .unwrap()
+        .config_dir()
+        .join("learn-japanese.conf");
+    println!("Config path : {}", path.as_path().to_str().unwrap());
+    match create_config(&path) {
+        Ok(_) => {}
+        Err(e) => return Err(e),
+    };
+    let mut config = read_config(&path);
+    println!("Do you want to edit your config ? [Y/N]");
+    let mut answer = String::new();
+    if let Err(e) = stdin().read_line(&mut answer) {
+        return Err(e);
     }
-    //TODO: ask if user want to change config
+    if "Y\n".eq_ignore_ascii_case(&answer) {
+        if cfg!(target_os = "windows") {
+            Command::new("cmd")
+                .arg("/C")
+                .arg(format!(
+                    "{} {}",
+                    "notepad",
+                    &path.as_path().to_str().unwrap()
+                ))
+                .spawn()
+                .expect("failed to execute process")
+                .wait()
+                .expect("Error: Editor returned a non-zero value");
+        } else {
+            let editor = std::env::var("EDITOR").unwrap_or("vi".to_string());
+            Command::new("/usr/bin/sh")
+                .arg("-c")
+                .arg(format!("{} {}", editor, &path.as_path().to_str().unwrap()))
+                .spawn()
+                .expect("failed to execute process")
+                .wait()
+                .expect("Error: Editor returned a non-zero value");
+        };
+        config = read_config(&path);
+    }
     Ok(config
         .ok()
         .unwrap()
@@ -133,10 +171,7 @@ fn main() {
         ('を', "wo"),
     ];
     hiraganas.shuffle(&mut rng);
-    // let vowel_choosed = ['a', 'e', 'i', 'u', 'o'].choose(&mut rng).unwrap();
-    // let _vowel_choosed = ['a', 'i'];
-
-    let _vowel_choosed = match config_check() {
+    let vowel_choosed = match config_check() {
         Ok(vowels) => vowels,
         Err(_) => vec!['a', 'e', 'i', 'u', 'o'],
     };
@@ -144,9 +179,9 @@ fn main() {
     let mut hiraganas: Vec<Hiragana> = hiraganas
         .map(|it| Hiragana::from(it))
         .into_iter()
-        .filter(|it| _vowel_choosed.contains(&it.vowel) || it.vowel.to_string() == it.romanized)
+        .filter(|it| vowel_choosed.contains(&it.vowel) || it.vowel.to_string() == it.romanized)
         .collect();
-    let len = rng.gen_range(0..hiraganas.len());
+    let len = rng.gen_range(4..hiraganas.len());
     hiraganas.truncate(len);
 
     for hiragana in hiraganas {
