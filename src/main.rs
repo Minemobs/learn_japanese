@@ -78,15 +78,14 @@ fn config_check() -> Result<Vec<char>, std::io::Error> {
     if let Err(e) = stdin().read_line(&mut answer) {
         return Err(e);
     }
-    if "Y\n".eq_ignore_ascii_case(&answer) {
+    if "Y".eq_ignore_ascii_case(&answer.trim_end()) {
         if cfg!(target_os = "windows") {
-            Command::new("cmd")
-                .arg("/C")
-                .arg(format!(
-                    "{} {}",
-                    "notepad",
-                    &path.as_path().to_str().unwrap()
-                ))
+            Command::new("powershell.exe")
+                .arg("-c")
+                .arg("start")
+                .arg("-Wait")
+                .arg("notepad.exe")
+                .arg(&path.as_path().to_str().unwrap())
                 .spawn()
                 .expect("failed to execute process")
                 .wait()
@@ -176,15 +175,16 @@ fn main() {
         Err(_) => vec!['a', 'e', 'i', 'u', 'o'],
     };
 
+    #[allow(unused_mut)]
     let mut hiraganas: Vec<Hiragana> = hiraganas
         .map(|it| Hiragana::from(it))
         .into_iter()
         .filter(|it| vowel_choosed.contains(&it.vowel) || it.vowel.to_string() == it.romanized)
         .collect();
-    let len = rng.gen_range(4..hiraganas.len());
-    hiraganas.truncate(len);
+    // let len = rng.gen_range(4..hiraganas.len());
+    // hiraganas.truncate(len);
 
-    for hiragana in hiraganas {
+    for hiragana in &hiraganas {
         let mut line = String::new();
         println!("What's that character: {} ?", hiragana.japanese);
         stdin().read_line(&mut line).unwrap();
@@ -196,5 +196,5 @@ fn main() {
             println!("You already forgot ? It's '{}' !", hiragana.romanized);
         }
     }
-    println!("You have {}/{} points.", points, len);
+    println!("You have {}/{} points.", points, hiraganas.len());
 }

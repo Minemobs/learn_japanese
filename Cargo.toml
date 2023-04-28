@@ -7,5 +7,4 @@ edition = "2021"
 
 [dependencies]
 directories = "5.0.0"
-# cursive = "0.20.0"
 rand = "0.8.5"
