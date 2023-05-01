@@ -8,3 +8,6 @@ edition = "2021"
 [dependencies]
 directories = "5.0.0"
 rand = "0.8.5"
+crossterm = "0.26"
+tui = { package = "ratatui", version = "0.20.1" }
+tui-input = "0.7.0"
