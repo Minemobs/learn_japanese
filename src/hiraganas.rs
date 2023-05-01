@@ -4,7 +4,6 @@ use rand::{rngs::ThreadRng, seq::SliceRandom};
 pub struct Hiragana {
     japanese: char,
     romanized: &'static str,
-    #[allow(dead_code)]
     vowel: char,
 }
 
