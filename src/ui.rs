@@ -45,11 +45,12 @@ pub fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         h_chunk[1].width,
         chunks[1].height,
     );
-    let paragraph =
-        Paragraph::new(app.current_hiragana().unwrap().get_hiragana().to_string()).block(block);
+    let paragraph = Paragraph::new(app.current_hiragana().unwrap().get_hiragana().to_string())
+        .alignment(Alignment::Center)
+        .block(block);
     f.render_widget(paragraph, rect);
     let block = Block::default()
-        .title("Roumanji (latin char)")
+        .title(" Roumanji (latin char) ")
         .title_alignment(Alignment::Center)
         .borders(Borders::ALL);
     let rect = Rect::new(
