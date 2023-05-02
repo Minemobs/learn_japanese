@@ -1,14 +1,14 @@
-use std::{io, path::Path, process::Command};
+use std::{fs, io, path::Path, process::Command};
 
 use directories::BaseDirs;
 
 fn create_config(path: &Path) -> Result<(), io::Error> {
     const DEFAULT_VOWELS: [char; 5] = ['a', 'e', 'i', 'u', 'o'];
     let file = if path.exists() {
-        std::fs::File::open(path)
+        fs::File::open(path)
     } else {
-        let f = std::fs::File::create(path);
-        if let Err(e) = std::fs::write(
+        let f = fs::File::create(path);
+        if let Err(e) = fs::write(
             path,
             format!("vowels:{}", String::from_iter(DEFAULT_VOWELS)),
         ) {
@@ -24,7 +24,7 @@ fn create_config(path: &Path) -> Result<(), io::Error> {
 }
 
 fn read_config(path: &Path) -> Result<String, io::Error> {
-    match std::fs::read_to_string(path) {
+    match fs::read_to_string(path) {
         Ok(str) => Ok(str),
         Err(e) => {
             eprintln!("An error occured while reading the config\n{:#?}", e);
@@ -39,10 +39,7 @@ pub fn config_check() -> Result<Vec<char>, io::Error> {
         .config_dir()
         .join("learn-japanese.conf");
     println!("Config path : {}", path.as_path().to_str().unwrap());
-    match create_config(&path) {
-        Ok(_) => {}
-        Err(e) => return Err(e),
-    };
+    create_config(&path)?;
     let mut config = read_config(&path);
     println!("Do you want to edit your config ? [Y/N]");
     let mut answer = String::new();
