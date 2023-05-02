@@ -97,7 +97,7 @@ pub fn get_hiraganas(rng: &mut ThreadRng) -> Vec<Hiragana> {
     };
 
     let hiraganas: Vec<Hiragana> = hiraganas
-        .map(|it| Hiragana::from(it))
+        .map(Hiragana::from)
         .into_iter()
         .filter(|it| {
             vowel_choosed.contains(&it.get_vowel())
