@@ -1,7 +1,7 @@
 use tui::{
     backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
-    widgets::{Block, BorderType, Borders, Paragraph},
+    widgets::{Block, BorderType, Borders, Clear, Paragraph, Wrap},
     Frame,
 };
 
@@ -63,4 +63,44 @@ pub fn ui<B: Backend>(f: &mut Frame<B>, app: &mut App) {
         .block(block)
         .alignment(Alignment::Center);
     f.render_widget(paragraph, rect);
+    if let Some(popup_content) = app.get_popup() {
+        let block = Block::default()
+            .title("Popup")
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded)
+            .title_alignment(Alignment::Center);
+        let text = Paragraph::new(popup_content.to_string())
+            .alignment(Alignment::Center)
+            .wrap(Wrap { trim: true })
+            .block(block);
+        let area = centered_rect(15, 20, f.size());
+        f.render_widget(Clear, area);
+        f.render_widget(text, area);
+    }
+}
+
+fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
+    let popup_layout = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints(
+            [
+                Constraint::Percentage((100 - percent_y) / 2),
+                Constraint::Percentage(percent_y),
+                Constraint::Percentage((100 - percent_y) / 2),
+            ]
+            .as_ref(),
+        )
+        .split(r);
+
+    Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints(
+            [
+                Constraint::Percentage((100 - percent_x) / 2),
+                Constraint::Percentage(percent_x),
+                Constraint::Percentage((100 - percent_x) / 2),
+            ]
+            .as_ref(),
+        )
+        .split(popup_layout[1])[1]
 }

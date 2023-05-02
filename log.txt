@@ -1,5 +1,0 @@
-   Compiling learn_japanese v0.1.0 (/home/minemobs/Dev/rust/learnJapanese)
-    Finished dev [unoptimized + debuginfo] target(s) in 1.48s
-     Running `target/debug/learn_japanese`
-thread 'main' panicked at 'idk != idk', src/main.rs:36:21
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

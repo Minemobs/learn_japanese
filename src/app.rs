@@ -4,6 +4,7 @@ pub struct App<'a> {
     hiraganas: &'a mut Vec<Hiragana>,
     input: String,
     index: usize,
+    popup: Option<String>,
 }
 
 impl App<'_> {
@@ -12,6 +13,7 @@ impl App<'_> {
             hiraganas,
             input: String::new(),
             index: 0,
+            popup: None,
         }
     }
 
@@ -30,5 +32,13 @@ impl App<'_> {
     pub fn next_hiragana(&mut self) -> Option<&Hiragana> {
         self.index += 1;
         self.current_hiragana()
+    }
+
+    pub fn get_popup(&self) -> Option<&String> {
+        self.popup.as_ref()
+    }
+
+    pub fn set_popup(&mut self, popup: Option<String>) {
+        self.popup = popup;
     }
 }

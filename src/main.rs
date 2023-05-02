@@ -25,13 +25,18 @@ fn handle_input(key: KeyEvent, points: &Cell<u16>, app: &mut app::App) -> Result
             app.get_input_mut().pop();
         }
         KeyCode::Enter => {
+            if app.get_popup().is_some() {
+                app.set_popup(None);
+                return Ok(());
+            }
             let hiragana = app.current_hiragana().unwrap();
-            //TODO: add a popup or smth to warn the user if they are wrong
             if hiragana
                 .get_roumanji()
                 .eq_ignore_ascii_case(app.get_input())
             {
                 points.set(points.get() + 1);
+            } else {
+                app.set_popup(Some(format!("Wrong, it's {}", hiragana.get_roumanji())));
             }
             app.get_input_mut().clear();
             if app.next_hiragana().is_none() {
