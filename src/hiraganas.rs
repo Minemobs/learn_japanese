@@ -4,7 +4,6 @@ use rand::{rngs::ThreadRng, seq::SliceRandom};
 pub struct Hiragana {
     japanese: char,
     romanized: &'static str,
-    #[allow(dead_code)]
     vowel: char,
 }
 
@@ -98,7 +97,7 @@ pub fn get_hiraganas(rng: &mut ThreadRng) -> Vec<Hiragana> {
     };
 
     let hiraganas: Vec<Hiragana> = hiraganas
-        .map(|it| Hiragana::from(it))
+        .map(Hiragana::from)
         .into_iter()
         .filter(|it| {
             vowel_choosed.contains(&it.get_vowel())
