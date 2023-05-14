@@ -23,4 +23,6 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: Publish - ${{ matrix.os }}
-        path: learn_japanese(.exe)?
+        path: |
+          debug/learn_japanese.exe
+          debug/learn_japanese
