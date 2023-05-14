@@ -4,7 +4,9 @@ mod hiraganas;
 mod ui;
 
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEvent},
+    event::{
+        self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEvent, KeyEventKind,
+    },
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -64,6 +66,9 @@ fn main() -> Result<(), std::io::Error> {
     loop {
         terminal.draw(|f| ui::ui(f, &mut _app))?;
         if let Event::Key(key) = event::read()? {
+            if key.kind != KeyEventKind::Press {
+                continue;
+            }
             if handle_input(key, &points, &mut _app).is_err() {
                 break;
             }
