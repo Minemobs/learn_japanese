@@ -4,11 +4,9 @@ mod hiraganas;
 mod ui;
 
 use crossterm::{
-    event::{
-        self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEvent, KeyEventKind,
-    },
-    execute,
+    event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+    ExecutableCommand,
 };
 use hiraganas::get_hiraganas;
 use rand::thread_rng;
@@ -51,7 +49,7 @@ fn handle_input(key: KeyEvent, points: &Cell<u16>, app: &mut app::App) -> Result
 }
 
 #[allow(unused_mut)]
-fn main() -> Result<(), std::io::Error> {
+fn main() -> std::io::Result<()> {
     let mut points = Cell::new(0);
     let mut rng = thread_rng();
     let mut hiraganas = get_hiraganas(&mut rng);
@@ -59,7 +57,7 @@ fn main() -> Result<(), std::io::Error> {
 
     // setup terminal
     enable_raw_mode()?;
-    execute!(stdout(), EnterAlternateScreen, EnableMouseCapture)?;
+    stdout().execute(EnterAlternateScreen)?;
     let backend = CrosstermBackend::new(stdout());
     let mut terminal = Terminal::new(backend)?;
 
@@ -77,12 +75,7 @@ fn main() -> Result<(), std::io::Error> {
 
     // restore terminal
     disable_raw_mode()?;
-    execute!(
-        terminal.backend_mut(),
-        LeaveAlternateScreen,
-        DisableMouseCapture
-    )?;
-    terminal.show_cursor()?;
+    stdout().execute(LeaveAlternateScreen);
 
     println!("You have {}/{} points.", points.get(), hiraganas.len());
     Ok(())
